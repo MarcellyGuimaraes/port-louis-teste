@@ -22,4 +22,9 @@ const atualizar = async (id, dados) => {
   return buscarPorId(id);
 };
 
-module.exports = { listarTodos, buscarPorId, criar, atualizar };
+const remover = async (id) => {
+  const [resultado] = await pool.query('DELETE FROM contatos WHERE id = ?', [id]);
+  return resultado.affectedRows > 0;
+};
+
+module.exports = { listarTodos, buscarPorId, criar, atualizar, remover };

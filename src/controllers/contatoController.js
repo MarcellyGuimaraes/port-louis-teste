@@ -19,4 +19,10 @@ const atualizar = async (req, res) => {
   res.status(200).json(contato);
 };
 
-module.exports = { listar, criar, atualizar };
+const remover = async (req, res) => {
+  const id = validarId(req.params.id);
+  await contatoService.remover(id);
+  res.status(204).send();
+};
+
+module.exports = { listar, criar, atualizar, remover };
