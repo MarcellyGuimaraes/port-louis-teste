@@ -1,13 +1,8 @@
 require('dotenv').config({ quiet: true });
-const express = require('express');
+const app = require('./app');
 const pool = require('./config/database');
 
 const PORT = process.env.PORT || 3000;
-const app = express();
-
-app.get('/', (req, res) => {
-  res.json({ status: 'ok' });
-});
 
 const iniciarServidor = async () => {
   await pool.query('SELECT 1');
