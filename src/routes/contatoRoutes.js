@@ -5,5 +5,6 @@ const contatoRoutes = Router();
 
 contatoRoutes.get('/', contatoController.listar);
 contatoRoutes.post('/', contatoController.criar);
+contatoRoutes.patch('/:id', contatoController.atualizar);
 
 module.exports = contatoRoutes;

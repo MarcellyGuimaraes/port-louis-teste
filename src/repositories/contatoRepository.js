@@ -17,4 +17,9 @@ const criar = async ({ nome, telefone }) => {
   return buscarPorId(resultado.insertId);
 };
 
-module.exports = { listarTodos, buscarPorId, criar };
+const atualizar = async (id, dados) => {
+  await pool.query('UPDATE contatos SET ? WHERE id = ?', [dados, id]);
+  return buscarPorId(id);
+};
+
+module.exports = { listarTodos, buscarPorId, criar, atualizar };

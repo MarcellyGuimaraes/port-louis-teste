@@ -1,5 +1,5 @@
 const contatoService = require('../services/contatoService');
-const { validarCriacao } = require('../validators/contatoValidator');
+const { validarCriacao, validarAtualizacao, validarId } = require('../validators/contatoValidator');
 
 const listar = async (req, res) => {
   const contatos = await contatoService.listar();
@@ -12,4 +12,11 @@ const criar = async (req, res) => {
   res.status(201).json(contato);
 };
 
-module.exports = { listar, criar };
+const atualizar = async (req, res) => {
+  const id = validarId(req.params.id);
+  const dados = validarAtualizacao(req.body);
+  const contato = await contatoService.atualizar(id, dados);
+  res.status(200).json(contato);
+};
+
+module.exports = { listar, criar, atualizar };
