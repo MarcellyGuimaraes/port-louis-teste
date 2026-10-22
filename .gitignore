@@ -1,0 +1,6 @@
+node_modules
+.env
+openspec/
+.claude/
+.agents/
+AGENTS.md
