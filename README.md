@@ -31,6 +31,8 @@ Copie o arquivo de exemplo:
 cp .env.example .env
 ```
 
+O comando funciona no Bash e no PowerShell. O `.env` não é versionado porque guarda as credenciais do banco; por isso o repositório traz apenas o `.env.example`, com todas as variáveis e valores de exemplo.
+
 | Variável      | Descrição                                         | Padrão        |
 |---------------|---------------------------------------------------|---------------|
 | `PORT`        | Porta da API                                      | `3000`        |
@@ -130,6 +132,14 @@ curl -X POST http://localhost:3000/contatos \
   -d '{"nome": "José Conceição", "telefone": "(11) 98765-4321"}'
 ```
 
+> **Windows:** no Git Bash, o `curl` pode enviar letras acentuadas em outra codificação que não UTF-8, e a API recusa o nome com `400`. Nesse caso, escreva os acentos com escapes Unicode do JSON (`\u00e9` para "é", `\u00e7` para "ç", `\u00e3` para "ã") ou use um cliente HTTP como Postman ou Insomnia:
+>
+> ```bash
+> curl -X POST http://localhost:3000/contatos \
+>   -H "Content-Type: application/json" \
+>   -d '{"nome": "Jos\u00e9 Concei\u00e7\u00e3o", "telefone": "(11) 98765-4321"}'
+> ```
+
 Resposta `201`:
 
 ```json
@@ -192,6 +202,7 @@ Todos os erros retornam um JSON no formato:
 - **PATCH como atualização parcial**, seguindo a semântica do método. Campos desconhecidos no corpo são ignorados.
 - **Arquitetura em camadas** (rotas, controllers, services e repositories) para separar as responsabilidades de HTTP, regra de negócio e acesso a dados.
 - **Consultas parametrizadas** em todas as queries, evitando SQL injection.
+- **`.env` fora do repositório.** As credenciais ficam no `.env`, que é criado localmente a partir do `.env.example` e está no `.gitignore`, para que nenhuma senha seja versionada.
 
 ## Estrutura do projeto
 
