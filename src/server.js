@@ -6,7 +6,12 @@ const PORT = process.env.PORT || 3000;
 
 const iniciarServidor = async () => {
   await pool.query('SELECT 1');
-  app.listen(PORT, () => {
+  app.listen(PORT, (erro) => {
+    if (erro) {
+      console.error(`Não foi possível iniciar o servidor na porta ${PORT}:`, erro.message);
+      process.exit(1);
+    }
+
     console.log(`Servidor rodando em http://localhost:${PORT}`);
   });
 };

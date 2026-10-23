@@ -2,6 +2,7 @@ const AppError = require('../errors/AppError');
 
 const PALAVRA_VALIDA = /^\p{L}{3,}$/u;
 const MIN_PALAVRAS_NOME = 2;
+const MAX_CARACTERES_NOME = 100;
 const TELEFONE_VALIDO = /^\d{10,11}$/;
 
 const normalizarNome = (nome) => nome.trim().replace(/\s+/g, ' ');
@@ -13,7 +14,13 @@ const validarNome = (nome) => {
     throw new AppError('O nome é obrigatório e deve ser um texto');
   }
 
-  const palavras = normalizarNome(nome).split(' ');
+  const nomeNormalizado = normalizarNome(nome);
+
+  if (nomeNormalizado.length > MAX_CARACTERES_NOME) {
+    throw new AppError(`O nome deve ter no máximo ${MAX_CARACTERES_NOME} caracteres`);
+  }
+
+  const palavras = nomeNormalizado.split(' ');
   const nomeValido =
     palavras.length >= MIN_PALAVRAS_NOME && palavras.every((palavra) => PALAVRA_VALIDA.test(palavra));
 
@@ -21,7 +28,7 @@ const validarNome = (nome) => {
     throw new AppError('O nome deve ter pelo menos duas palavras, cada uma com no mínimo 3 letras');
   }
 
-  return normalizarNome(nome);
+  return nomeNormalizado;
 };
 
 const validarTelefone = (telefone) => {

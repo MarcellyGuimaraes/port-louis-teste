@@ -31,35 +31,76 @@ Copie o arquivo de exemplo:
 cp .env.example .env
 ```
 
-| Variável      | Descrição                  | Padrão        |
-|---------------|----------------------------|---------------|
-| `PORT`        | Porta da API               | `3000`        |
-| `DB_HOST`     | Endereço do MySQL          | `127.0.0.1`   |
-| `DB_PORT`     | Porta do MySQL             | `3306`        |
-| `DB_USER`     | Usuário do MySQL           | `root`        |
-| `DB_PASSWORD` | Senha do MySQL             | `root`        |
-| `DB_NAME`     | Nome do banco de dados     | `contatos_db` |
+| Variável      | Descrição                                         | Padrão        |
+|---------------|---------------------------------------------------|---------------|
+| `PORT`        | Porta da API                                      | `3000`        |
+| `DB_HOST`     | Endereço do MySQL                                 | `127.0.0.1`   |
+| `DB_PORT`     | Porta do MySQL                                    | `3306`        |
+| `DB_USER`     | Usuário do MySQL                                  | `root`        |
+| `DB_PASSWORD` | Senha do MySQL                                    | `root`        |
+| `DB_NAME`     | Nome do banco de dados                            | `contatos_db` |
+| `DB_SSL_CA`   | Certificado da CA para conexão com SSL (opcional) | vazio         |
+
+#### Conexão com SSL (opcional)
+
+Para rodar localmente, deixe `DB_SSL_CA` vazia. Ela só é necessária quando o MySQL exige conexão com SSL, como nos serviços gerenciados do [Aiven](https://aiven.io/). Nesse caso, baixe o certificado da CA (**CA certificate**) na página de visão geral do serviço no console do Aiven e coloque o conteúdo do arquivo PEM no `.env`, **entre aspas duplas**. As quebras de linha podem ficar no próprio valor:
+
+```env
+DB_SSL_CA="-----BEGIN CERTIFICATE-----
+MIIEQTCCAqmgAwIBAgIU...
+...
+-----END CERTIFICATE-----"
+```
+
+ou ficar em uma linha só, com `\n` no lugar de cada quebra:
+
+```env
+DB_SSL_CA="-----BEGIN CERTIFICATE-----\nMIIEQTCCAqmgAwIBAgIU...\n-----END CERTIFICATE-----"
+```
+
+Com a variável preenchida, a conexão passa a usar SSL e valida o certificado do servidor com essa CA. Preencha também `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` e `DB_NAME` com os dados do serviço.
 
 ### 3. Suba o banco de dados
 
 **Opção A: com Docker (recomendado)**
 
+Com o container do projeto, o `DB_USER` **tem que ser `root`**: o container cria só o usuário `root`, com a senha definida em `DB_PASSWORD`, e o banco com o nome definido em `DB_NAME`.
+
 ```bash
 docker compose up -d
 ```
 
-O container usa as credenciais do `.env`, cria o banco e executa o `database/schema.sql` automaticamente na primeira inicialização. Na primeira vez, o MySQL leva alguns segundos para ficar pronto.
+Na primeira inicialização, o container cria o banco e executa o `database/schema.sql` automaticamente. Isso leva alguns segundos. Para saber quando o MySQL está pronto, acompanhe os logs e espere aparecer a linha `ready for connections` com `port: 3306` (saia com `Ctrl+C`). Na primeira inicialização, essa mensagem aparece antes com `port: 0`: é um servidor temporário, usado só para criar o banco, que ainda não aceita conexões.
+
+```bash
+docker compose logs -f mysql
+```
 
 > Se já existir um MySQL usando a porta 3306, altere `DB_PORT` no `.env` (por exemplo, para `3307`).
 
+As credenciais e o nome do banco só são aplicados na primeira inicialização, quando o volume do banco é criado. Se você alterar `DB_PASSWORD` ou `DB_NAME` depois disso, recrie o volume e suba o container de novo. **Atenção: isso apaga todos os dados do banco.**
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
 **Opção B: com um MySQL instalado localmente**
 
-Ajuste o `.env` com as credenciais do seu MySQL e crie o banco e a tabela:
+Ajuste o `.env` com as credenciais do seu MySQL. Depois, na raiz do projeto, crie o banco e a tabela. O nome do banco nos comandos (`contatos_db`) **tem que ser igual ao valor de `DB_NAME`** no `.env`. Troque `root` pelo seu usuário, se for outro; a senha é pedida a cada comando.
 
-```sql
-CREATE DATABASE contatos_db;
-USE contatos_db;
-SOURCE database/schema.sql;
+No Bash (Linux, macOS ou Git Bash):
+
+```bash
+mysql -u root -p -e "CREATE DATABASE contatos_db"
+mysql -u root -p contatos_db < database/schema.sql
+```
+
+No PowerShell, que não aceita o redirecionamento com `<`:
+
+```powershell
+mysql -u root -p -e "CREATE DATABASE contatos_db"
+Get-Content database/schema.sql | mysql -u root -p contatos_db
 ```
 
 ### 4. Inicie a API
@@ -139,7 +180,7 @@ Todos os erros retornam um JSON no formato:
 
 ## Validações
 
-- **Nome**: obrigatório, com no mínimo duas palavras, cada uma com pelo menos 3 letras. Letras acentuadas são aceitas. Espaços extras são removidos.
+- **Nome**: obrigatório, com no mínimo duas palavras, cada uma com pelo menos 3 letras. Letras acentuadas são aceitas. Espaços extras são removidos. Depois disso, o nome pode ter no máximo 100 caracteres.
 - **Telefone**: obrigatório, com 10 ou 11 dígitos incluindo o DDD. Máscaras como `(11) 98765-4321` são aceitas e o telefone é salvo apenas com os dígitos.
 - **Id**: deve ser um número inteiro positivo.
 

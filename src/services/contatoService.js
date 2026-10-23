@@ -18,11 +18,11 @@ const atualizar = async (id, dados) => {
 };
 
 const remover = async (id) => {
-    const foiRemovido = await contatoRepository.remover(id);
-  
-    if (!foiRemovido) {
-      throw new AppError(CONTATO_NAO_ENCONTRADO, 404);
-    }
-  };
-  
-  module.exports = { listar, criar, atualizar, remover };
+  const foiRemovido = await contatoRepository.remover(id);
+
+  if (!foiRemovido) {
+    throw new AppError(CONTATO_NAO_ENCONTRADO, 404);
+  }
+};
+
+module.exports = { listar, criar, atualizar, remover };
