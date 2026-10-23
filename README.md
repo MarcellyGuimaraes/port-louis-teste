@@ -115,6 +115,12 @@ A API estará disponível em `http://localhost:3000`. Para rodar sem o modo de d
 
 Se o banco não estiver acessível, a aplicação exibe o erro de conexão e encerra.
 
+Há também uma instância em produção: [https://port-louis-teste.onrender.com](https://port-louis-teste.onrender.com).
+
+## Collection do Postman
+
+As requisições da API estão na collection `docs/contatos.postman_collection.json`. Ela cobre criar, listar, atualizar e excluir contatos, com um conjunto de requisições para `http://localhost:3000` e outro para a URL de produção.
+
 ## Rotas
 
 | Método   | Rota             | Descrição                  | Sucesso |
@@ -209,6 +215,8 @@ Todos os erros retornam um JSON no formato:
 ```
 ├── database/
 │   └── schema.sql
+├── docs/
+│   └── contatos.postman_collection.json
 ├── src/
 │   ├── config/          # conexão com o banco
 │   ├── controllers/     # entrada e saída HTTP
